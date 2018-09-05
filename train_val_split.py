@@ -1,5 +1,3 @@
-# -*- coding: UTF-8 -*-
-#训练集和验证集分类
 
 import os
 import random
