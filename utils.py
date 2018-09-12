@@ -3,6 +3,34 @@ import glob
 import shutil
 import torch
 import numpy as np
+import time 
+import functools
+
+DEFAULT_FMT = '[{elapsed:0.8f}s] {name}({args}, {kwargs}) -> {result}'
+
+
+def clock(fmt=DEFAULT_FMT):
+    def decorate(func):
+        @functools.wraps(func)
+        def clocked(*args, **kwargs):
+            t0 = time.time()
+            _result = func(*args, **kwargs)
+            elapsed = time.time() - t0
+            name = func.__name__
+
+            if args:
+                args = ', '.join(repr(arg) for arg in args)
+            
+            if kwargs:
+                pairs = ['%s=%r' % (k, w) for k, w in sorted(kwargs.items())]
+                kwargs = ', '.join(pairs)
+            
+            result = repr(_result)
+            print(fmt.format(**locals()))
+            return result
+        return clocked
+    return decorate
+
 
 
 def save_checkpoint(state, is_best, filename='checkpoint',  experiment_dir='', id = None):
@@ -31,6 +59,7 @@ def backup_src(src_root, target_root, reg='*.py'):
         print('\tCopy ' + source + ' to ' + target)
         shutil.copyfile(os.path.join(src_root, file), os.path.join(target_root, file))
     print('Finish!')
+
 
 
 
